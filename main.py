@@ -74,7 +74,7 @@ if uploaded_file is not None:
         st.text(f"Nombre del pozo: {las.well.WELL.value}")
 
         # Mostrar lista de curvas disponibles
-        st.write("### Curvas contenidas en el archivo")
+        st.write("### Curvas contenidas")
         st.text(", ".join(las.keys()))
 
         # Convertir las curvas a un DataFrame
