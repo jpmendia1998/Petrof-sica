@@ -1,10 +1,6 @@
 import streamlit as st
-import pandas as pd
-import plotly.express as px
 from PIL import Image
-from pathlib import Path
 import lasio
-import welly
 import matplotlib.pyplot as plt
 
 
@@ -142,6 +138,7 @@ if uploaded_file is not None:
         st.error(f"No se pudo procesar el archivo LAS: {e}")
 else:
     st.info("Por favor, carga un archivo LAS para continuar.")
+
 
 # Generar archivo requirements.txt
 with open('requirements.txt', 'w') as f:
