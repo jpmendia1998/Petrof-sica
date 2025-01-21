@@ -4,7 +4,6 @@ import plotly.express as px
 from PIL import Image
 from pathlib import Path
 import lasio
-import welly
 import matplotlib.pyplot as plt
 
 def calcular_parametros(las_df):
