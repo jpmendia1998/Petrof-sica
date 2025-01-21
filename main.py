@@ -1,11 +1,17 @@
 import streamlit as st
 import pandas as pd
-from streamlit_option_menu import option_menu
-import plotly.express as px
 from PIL import Image
-from pathlib import Path
 import lasio
-import welly
+import matplotlib.pyplot as plt
+
+
+def calcular_parametros(las_df):
+    # Saturación de agua irreducible
+    las_df["SWIRR"] = las_df["SW"] * las_df["BVW"]
+
+    # Porosidad efectiva
+    las_df["PHIE"] = las_df["PHIF"] * (1 - las_df["SWIRR"])
+    return las_df
 
 
 # Insert an icon
@@ -92,7 +98,53 @@ if uploaded_file is not None:
             file_name="datos_volve.csv",
             mime="text/csv",
         )
+        # Sección para cálculos petrofísicos
+        st.write("## Cálculos Petrofísicos")
+        las_df = calcular_parametros(las_df)
+        st.write("### Resultados de Cálculos Petrofísicos")
+        st.dataframe(las_df[["PHIE", "SWIRR"]].head(10))
+
+        # Agregar sección para graficar registros petrofísicos
+        st.write("## Gráficos de registros petrofísicos")
+        disponibles = list(las.keys())
+        tracks = st.multiselect("Selecciona los tracks que deseas graficar", disponibles,
+                                default=["KLOGH", "PHIF", "SAND_FLAG", "SW", "VSH"])
+
+        if tracks:
+            fig, axes = plt.subplots(1, len(tracks), figsize=(20, 40))
+
+            for ind, track in enumerate(tracks):
+                try:
+                    datos = las[track]
+                    profundidad = las.index  # Profundidad como índice
+
+                    # Graficar el track seleccionado
+                    axes[ind].plot(datos, profundidad)
+                    axes[ind].invert_yaxis()  # Eje Y invertido
+                    axes[ind].set_title(track)
+
+                except KeyError:
+                    st.error(f"No se encontró el track: {track}")
+
+            axes[0].set_ylabel("Profundidad (m)", fontsize=14)
+            fig.suptitle("Registros Petrofísicos", fontsize=16)
+            fig.tight_layout()
+
+            # Mostrar gráfico en Streamlit
+            st.pyplot(fig)
+        else:
+            st.warning("Por favor, selecciona al menos un track para graficar.")
+
     except Exception as e:
         st.error(f"No se pudo procesar el archivo LAS: {e}")
 else:
     st.info("Por favor, carga un archivo LAS para continuar.")
+
+# Generar archivo requirements.txt
+with open('requirements.txt', 'w') as f:
+    f.write("streamlit\n")
+    f.write("pandas\n")
+    f.write("plotly\n")
+    f.write("Pillow\n")
+    f.write("lasio\n")
+    f.write("matplotlib\n")
